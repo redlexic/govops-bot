@@ -1,6 +1,5 @@
 require("dotenv").config();
 const { WebClient } = require("@slack/web-api");
-const cron = require("node-cron");
 const events = require("./schedule");
 const { getCurrentCycleWeek, getSpellDate } = require("./cycle");
 const { buildSlackMessage } = require("./message");
@@ -13,7 +12,7 @@ function isoWeekday(date) {
   return date.getUTCDay() || 7;
 }
 
-async function tick() {
+async function main() {
   const now = new Date();
   const hour = now.getUTCHours();
   const day = isoWeekday(now);
@@ -23,19 +22,18 @@ async function tick() {
     (e) => e.week === cycleWeek && e.day === day && e.notifyHour === hour
   );
 
-  if (due.length === 0) return;
+  if (due.length === 0) {
+    console.log(`[${now.toISOString()}] No events due (W${cycleWeek} day=${day} hour=${hour})`);
+    return;
+  }
 
   const spellDate = getSpellDate(now);
   const msg = buildSlackMessage(due, cycleWeek, spellDate);
-  try {
-    await slack.chat.postMessage({ channel, text: msg.text, blocks: msg.blocks });
-    console.log(`[${now.toISOString()}] Sent ${due.length} event(s) for W${cycleWeek} day=${day} hour=${hour}`);
-  } catch (err) {
-    console.error(`[${now.toISOString()}] Failed:`, err.message);
-  }
+  await slack.chat.postMessage({ channel, text: msg.text, blocks: msg.blocks });
+  console.log(`[${now.toISOString()}] Sent ${due.length} event(s) for W${cycleWeek} day=${day} hour=${hour}`);
 }
 
-// Run every hour on the hour, UTC
-cron.schedule("0 * * * *", tick, { timezone: "UTC" });
-
-console.log(`govops-bot started — checking ${events.length} events every hour`);
+main().catch((err) => {
+  console.error("Failed:", err.message);
+  process.exit(1);
+});
