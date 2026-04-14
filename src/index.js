@@ -28,9 +28,11 @@ async function main() {
   }
 
   const spellDate = getSpellDate(now);
-  const msg = buildSlackMessage(due, cycleWeek, spellDate);
-  await slack.chat.postMessage({ channel, text: msg.text, blocks: msg.blocks });
-  console.log(`[${now.toISOString()}] Sent ${due.length} event(s) for W${cycleWeek} day=${day} hour=${hour}`);
+  for (const event of due) {
+    const msg = buildSlackMessage(event, spellDate);
+    await slack.chat.postMessage({ channel, text: msg.text, blocks: msg.blocks });
+  }
+  console.log(`[${now.toISOString()}] Sent ${due.length} message(s) for W${cycleWeek} day=${day} hour=${hour}`);
 }
 
 main().catch((err) => {
