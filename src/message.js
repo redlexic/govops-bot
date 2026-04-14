@@ -1,46 +1,21 @@
-const DAY_NAMES = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+function buildSlackMessage(events, cycleWeek, spellDate) {
+  const { notifyHour, week, day } = events[0];
+  const dayNames = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const heading = `Spell ${spellDate} — W${week} ${dayNames[day]} ${String(notifyHour).padStart(2, "0")}:00 UTC`;
 
-const ROLE_EMOJI = {
-  Governance: "🏛️",
-  All:        "👥",
-  Crafter:    "🛠️",
-  External:   "🌐",
-  "BA Labs":  "📊",
-  Reviewers:  "🔍",
-};
-
-function buildSlackMessage(events, cycleWeek) {
-  const { time, week, day } = events[0];
-  const dayName = DAY_NAMES[day];
-  const heading = `Spell Review — Week ${week} ${dayName} ${time} UTC`;
-
-  const lines = events.map((e) => {
-    const emoji = ROLE_EMOJI[e.responsible] || "▪️";
-    return `${emoji}  *${e.responsible}*: ${e.event}`;
-  });
+  const lines = events.map(
+    (e) => `• *${e.responsible}*: ${e.stage} _(deadline ${e.time} UTC)_ — Source: N/A`
+  );
 
   return {
     text: heading,
     blocks: [
       {
-        type: "header",
-        text: { type: "plain_text", text: `🔮 ${heading}` },
-      },
-      {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: lines.join("\n"),
+          text: `*${heading}*\n\n${lines.join("\n")}`,
         },
-      },
-      {
-        type: "context",
-        elements: [
-          {
-            type: "mrkdwn",
-            text: `Spell Review cycle week ${cycleWeek}/2`,
-          },
-        ],
       },
     ],
   };
