@@ -84,12 +84,16 @@ npm run listener       # Socket Mode listener: responds to /redline-schedule and
 
 ### 4. Deploy to Railway
 
-The repo is designed to run as **two Railway services** sharing the same codebase:
+The repo runs as **two Railway services** sharing the same codebase, each driven by its own config file:
 
-- **Cron service** — uses the defaults from `railway.toml`. Start command `npm start`, cron schedule `0 * * * *`. Needs `REDLINE_BOT_TOKEN` and `SLACK_CHANNEL_ID`.
-- **Listener service** — override Start Command to `npm run listener` and clear the cron schedule so the process stays up. Needs `REDLINE_BOT_TOKEN` and `REDLINE_BOT_APP_TOKEN`.
+| Service | Config file | Start command | Cron schedule | Env vars |
+|---------|-------------|---------------|---------------|----------|
+| Cron (e.g. `redline-bot-cron`) | `railway.toml` (default) | `npm start` | `0 * * * *` | `REDLINE_BOT_TOKEN`, `SLACK_CHANNEL_ID` |
+| Listener (e.g. `redline-bot-listener`) | `railway.listener.toml` | `npm run listener` | *(none — always on)* | `REDLINE_BOT_TOKEN`, `REDLINE_BOT_APP_TOKEN`, `RAILWAY_CONFIG_FILE=railway.listener.toml` |
 
-Push to the connected branch and Railway rebuilds both services via Nixpacks.
+The listener service picks up its config by setting the service variable `RAILWAY_CONFIG_FILE=railway.listener.toml`; without this variable, Railway would fall back to `railway.toml` and run the listener as a cron (wrong). The cron service has no `RAILWAY_CONFIG_FILE` set, so it uses the default `railway.toml`.
+
+Both services auto-rebuild on every push to the connected branch. Rotating `REDLINE_BOT_TOKEN` means updating it in **both** services' variable tabs — there is no shared secret store.
 
 ## References
 
