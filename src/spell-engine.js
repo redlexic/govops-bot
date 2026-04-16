@@ -1,6 +1,6 @@
-const { SPELL_CALENDAR } = require("./spell-calendar");
-const { CYCLE_EVENTS } = require("./cycle-template");
-const { WEEKLY_EVENTS } = require("./weekly-events");
+const { SPELL_CALENDAR } = require("./schedule/spell-calendar");
+const { CYCLE_EVENTS } = require("./schedule/monthly-events");
+const { WEEKLY_EVENTS } = require("./schedule/weekly-events");
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MS_PER_HOUR = 60 * 60 * 1000;
