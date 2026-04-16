@@ -15,7 +15,7 @@ const CYCLE_EVENTS = [
   { week: 0, day: 5, time: "17:00", label: "Prioritize Core & Star Content", actor: "Rune" },
 
   // ── Week 1 — Finalize Scope ────────────────────────────────────
-  { week: 1, day: 2, time: "14:30", label: "Review items in CC Tracker", actor: "Core Spell Team" },
+  { week: 1, day: 2, time: "14:30", label: "Review items in CC Tracker", actor: "Crafter" },
   { week: 1, day: 2, time: "17:00", label: "Communicate deviations (CF → EPL)", actor: "CF" },
   { week: 1, day: 3, time: "16:00", label: "Post on Forum (Tech Scope, Risk Assessments)", actor: "AA" },
   { week: 1, day: 3, time: "17:00", label: "Complete deployment parameters table", actor: "EPL" },
@@ -24,19 +24,20 @@ const CYCLE_EVENTS = [
   { week: 1, day: 5, time: "08:00", label: "AA submits Atlas Edit Proposal", actor: "AA" },
 
   // ── Week 2 — Governance ────────────────────────────────────────
-  { week: 2, day: 1, time: "09:00", label: "Star Spell Review begins (day 1 of 5)", actor: "Core Spell Team" },
+  // "Reviewer" resolves at runtime to the OTHER team (e.g. Dewiz reviews Sidestream's spell)
+  { week: 2, day: 1, time: "09:00", label: "Star Spell Review begins (day 1 of 5)", actor: "Reviewer" },
   { week: 2, day: 1, time: "09:00", label: "Aligned Delegate Vote begins (day 1 of 4)", actor: "Delegates" },
   { week: 2, day: 1, time: "10:00", label: "Deliver signed-off PR for review", actor: "Star" },
   { week: 2, day: 1, time: "16:00", label: "Publish Governance Poll", actor: "CF" },
-  { week: 2, day: 2, time: "09:00", label: "Star Spell Review continues (day 2 of 5)", actor: "Core Spell Team" },
+  { week: 2, day: 2, time: "09:00", label: "Star Spell Review continues (day 2 of 5)", actor: "Reviewer" },
   { week: 2, day: 2, time: "09:00", label: "Aligned Delegate Vote continues (day 2 of 4)", actor: "Delegates" },
-  { week: 2, day: 2, time: "16:00", label: "Sky Core GovOps Meeting", actor: "Core Spell Team" },
-  { week: 2, day: 3, time: "09:00", label: "Star Spell Review continues (day 3 of 5)", actor: "Core Spell Team" },
+  { week: 2, day: 2, time: "16:00", label: "Sky Core GovOps Meeting", actor: "Sky Core" },
+  { week: 2, day: 3, time: "09:00", label: "Star Spell Review continues (day 3 of 5)", actor: "Reviewer" },
   { week: 2, day: 3, time: "09:00", label: "Aligned Delegate Vote continues (day 3 of 4)", actor: "Delegates" },
-  { week: 2, day: 4, time: "09:00", label: "Star Spell Review continues (day 4 of 5)", actor: "Core Spell Team" },
+  { week: 2, day: 4, time: "09:00", label: "Star Spell Review continues (day 4 of 5)", actor: "Reviewer" },
   { week: 2, day: 4, time: "09:00", label: "Aligned Delegate Vote concludes (day 4 of 4)", actor: "Delegates" },
   { week: 2, day: 4, time: "23:59", label: "Incorporate in Atlas (if passed)", actor: "CC Risk Advisor" },
-  { week: 2, day: 5, time: "09:00", label: "Star Spell Review concludes (day 5 of 5)", actor: "Core Spell Team" },
+  { week: 2, day: 5, time: "09:00", label: "Star Spell Review concludes (day 5 of 5)", actor: "Reviewer" },
   { week: 2, day: 5, time: "16:00", label: "Deliver Star Spell Code", actor: "Star" },
   { week: 2, day: 5, time: "16:00", label: "Add Spell info to Executive Sheet", actor: "CF", link: { url: EXEC_SHEET_URL, text: "exec sheet" } },
   { week: 2, day: 5, time: "16:00", label: "Confirm Spell Address in Exec Sheet", actor: "Star", link: { url: EXEC_SHEET_URL, text: "exec sheet" } },

@@ -33,7 +33,10 @@ function expandCycle(spell) {
     const dayOffset = tmpl.week * 7 + (tmpl.day - 1);
     const datetime = new Date(w0Monday.getTime() + dayOffset * MS_PER_DAY + hours * MS_PER_HOUR + mins * MS_PER_MIN);
 
-    const actor = tmpl.actor === "Crafter" ? spell.crafter : tmpl.actor;
+    const otherTeam = spell.crafter === "Dewiz" ? "Sidestream" : "Dewiz";
+    const actor = tmpl.actor === "Crafter" ? spell.crafter
+      : tmpl.actor === "Reviewer" ? otherTeam
+      : tmpl.actor;
 
     return {
       datetime,
