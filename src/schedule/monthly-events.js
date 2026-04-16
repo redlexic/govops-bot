@@ -26,7 +26,7 @@ const CYCLE_EVENTS = [
   // ── Week 2 — Governance ────────────────────────────────────────
   // "Reviewer" resolves at runtime to the OTHER team (e.g. Dewiz reviews Sidestream's spell)
   { week: 2, day: 1, time: "09:00", label: "Star Spell Review begins (day 1 of 5)", actor: "Reviewer" },
-  { week: 2, day: 1, time: "09:00", label: "Aligned Delegate Vote begins (day 1 of 4)", actor: "Delegates" },
+  { week: 2, day: 1, time: "16:00", label: "Aligned Delegate Vote begins (day 1 of 4)", actor: "Delegates" },
   { week: 2, day: 1, time: "10:00", label: "Deliver signed-off PR for review", actor: "Star" },
   { week: 2, day: 1, time: "16:00", label: "Publish Governance Poll", actor: "CF" },
   { week: 2, day: 2, time: "09:00", label: "Star Spell Review continues (day 2 of 5)", actor: "Reviewer" },
@@ -35,7 +35,7 @@ const CYCLE_EVENTS = [
   { week: 2, day: 3, time: "09:00", label: "Star Spell Review continues (day 3 of 5)", actor: "Reviewer" },
   { week: 2, day: 3, time: "09:00", label: "Aligned Delegate Vote continues (day 3 of 4)", actor: "Delegates" },
   { week: 2, day: 4, time: "09:00", label: "Star Spell Review continues (day 4 of 5)", actor: "Reviewer" },
-  { week: 2, day: 4, time: "09:00", label: "Aligned Delegate Vote concludes (day 4 of 4)", actor: "Delegates" },
+  { week: 2, day: 4, time: "16:00", label: "Aligned Delegate Vote concludes (day 4 of 4)", actor: "Delegates" },
   { week: 2, day: 4, time: "23:59", label: "Incorporate in Atlas (if passed)", actor: "CC Risk Advisor" },
   { week: 2, day: 5, time: "09:00", label: "Star Spell Review concludes (day 5 of 5)", actor: "Reviewer" },
   { week: 2, day: 5, time: "16:00", label: "Deliver Star Spell Code", actor: "Star" },
