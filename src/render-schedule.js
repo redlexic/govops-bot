@@ -45,16 +45,29 @@ function renderSchedule(scheduleData) {
 
   if (scheduleData.weekly) {
     const { weekly } = scheduleData;
+    const { formatDuration } = require("./spell-engine");
+    const nowDay = now.getUTCDay() || 7;
+    const nowKey = nowDay * 100 + now.getUTCHours();
+
+    let currentIdx = -1;
+    for (let i = 0; i < weekly.events.length; i++) {
+      const e = weekly.events[i];
+      const eKey = e.day * 100 + parseInt(e.time, 10);
+      if (eKey <= nowKey) currentIdx = i;
+    }
+
     const nextStr = weekly.next
-      ? `Next: ${DAY_NAMES[weekly.next.event.day]} ${weekly.next.event.time} UTC (in ${require("./spell-engine").formatDuration(weekly.next.msUntil)})`
+      ? `Next: ${DAY_NAMES[weekly.next.event.day]} ${weekly.next.event.time} UTC (in ${formatDuration(weekly.next.msUntil)})`
       : "";
-    const weeklyEvents = weekly.events.map((e) =>
-      `   \`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${e.label}`
-    ).join("\n");
+    const weeklyRows = weekly.events.map((e, i) => {
+      const prefix = i === currentIdx ? "▶ " : "   ";
+      const label = i === currentIdx ? `*${e.label}*` : e.label;
+      return `${prefix}\`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${label}`;
+    }).join("\n");
     blocks.push({ type: "divider" });
     blocks.push({
       type: "section",
-      text: { type: "mrkdwn", text: `*Weekly — ${weekly.label}*\n${nextStr}\n${weeklyEvents}` },
+      text: { type: "mrkdwn", text: `*Weekly — ${weekly.label}*\n${nextStr}\n${weeklyRows}` },
     });
   }
 
