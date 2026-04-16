@@ -9,8 +9,9 @@ function formatRow(event, isCurrent) {
   return `${prefix}\`${slot}\` ${formatActor(event.actor)}  ${label}${linkSuffix}`;
 }
 
-function renderCycleSection(cycle) {
-  const header = `*${cycle.cycleLabel} (${cycle.crafter}) — currently W${cycle.currentWeek}*`;
+function renderCycleSection(cycle, now) {
+  const timeStr = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
+  const header = `*${cycle.cycleLabel} (${cycle.crafter}) — currently W${cycle.currentWeek} · ${timeStr}*`;
   const rows = cycle.events.map((event, idx) =>
     formatRow(event, idx === cycle.currentIdx)
   );
@@ -38,7 +39,7 @@ function renderSchedule(scheduleData) {
     blocks.push({ type: "divider" });
     blocks.push({
       type: "section",
-      text: { type: "mrkdwn", text: renderCycleSection(cycle) },
+      text: { type: "mrkdwn", text: renderCycleSection(cycle, now) },
     });
   }
 
