@@ -60,7 +60,7 @@ function renderSchedule(scheduleData) {
       ? `Next: ${DAY_NAMES[weekly.next.event.day]} ${weekly.next.event.time} UTC (in ${formatDuration(weekly.next.msUntil)})`
       : "";
     const weeklyRows = weekly.events.map((e, i) => {
-      const prefix = i === currentIdx ? "▶ " : "   ";
+      const prefix = i === currentIdx ? "👉 " : "   ";
       const label = i === currentIdx ? `*${e.label}*` : e.label;
       return `${prefix}\`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${label}`;
     }).join("\n");
