@@ -1,5 +1,6 @@
 const { SPELL_CALENDAR } = require("./spell-calendar");
 const { CYCLE_EVENTS } = require("./cycle-template");
+const { WEEKLY_EVENTS } = require("./weekly-events");
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MS_PER_HOUR = 60 * 60 * 1000;
@@ -73,6 +74,61 @@ function getActiveCycles(now) {
   return active;
 }
 
+function getWeeklyEventsForHour(now) {
+  const nowDay = now.getUTCDay() || 7;
+  const nowHour = now.getUTCHours();
+  const nowDate = now.toISOString().slice(0, 10);
+
+  return WEEKLY_EVENTS
+    .filter((e) => e.day === nowDay && parseInt(e.time, 10) === nowHour)
+    .map((e) => ({
+      datetime: new Date(`${nowDate}T${e.time}:00Z`),
+      label: e.label,
+      actor: e.actor,
+      cycleLabel: "Weekly",
+      week: null,
+      day: e.day,
+      time: e.time,
+      link: e.link || null,
+      publishDate: null,
+      crafter: null,
+    }));
+}
+
+function getNextWeeklyEvent(now) {
+  const nowDay = now.getUTCDay() || 7;
+  const nowHour = now.getUTCHours();
+  const nowMin = now.getUTCMinutes();
+
+  for (const e of WEEKLY_EVENTS) {
+    const [eH, eM] = e.time.split(":").map(Number);
+    let daysAhead = e.day - nowDay;
+    if (daysAhead < 0 || (daysAhead === 0 && (eH < nowHour || (eH === nowHour && eM <= nowMin)))) {
+      daysAhead += 7;
+    }
+    const datetime = new Date(now.getTime());
+    datetime.setUTCDate(datetime.getUTCDate() + daysAhead);
+    datetime.setUTCHours(eH, eM, 0, 0);
+
+    return {
+      event: {
+        datetime,
+        label: e.label,
+        actor: e.actor,
+        cycleLabel: "Weekly",
+        week: null,
+        day: e.day,
+        time: e.time,
+        link: e.link || null,
+        publishDate: null,
+        crafter: null,
+      },
+      msUntil: datetime - now,
+    };
+  }
+  return null;
+}
+
 function getEventsForHour(now = new Date()) {
   const cycles = getActiveCycles(now);
   const nowHour = now.getUTCHours();
@@ -87,6 +143,8 @@ function getEventsForHour(now = new Date()) {
       }
     }
   }
+
+  due.push(...getWeeklyEventsForHour(now));
   return due;
 }
 
@@ -100,7 +158,15 @@ function getActiveSchedule(now = new Date()) {
     }
     cycle.currentIdx = currentIdx;
   }
-  return { cycles, now };
+
+  const weeklyNext = getNextWeeklyEvent(now);
+  const weekly = {
+    label: "Atlas Edit Weekly Cycle",
+    events: WEEKLY_EVENTS.map((e) => ({ ...e, cycleLabel: "Weekly" })),
+    next: weeklyNext,
+  };
+
+  return { cycles, weekly, now };
 }
 
 function getNextEvent(now = new Date()) {
@@ -117,6 +183,11 @@ function getNextEvent(now = new Date()) {
         break;
       }
     }
+  }
+
+  const weeklyNext = getNextWeeklyEvent(now);
+  if (weeklyNext && (!best || weeklyNext.msUntil < best.msUntil)) {
+    best = weeklyNext;
   }
 
   if (!best) {

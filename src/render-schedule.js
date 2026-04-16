@@ -43,6 +43,21 @@ function renderSchedule(scheduleData) {
     });
   }
 
+  if (scheduleData.weekly) {
+    const { weekly } = scheduleData;
+    const nextStr = weekly.next
+      ? `Next: ${DAY_NAMES[weekly.next.event.day]} ${weekly.next.event.time} UTC (in ${require("./spell-engine").formatDuration(weekly.next.msUntil)})`
+      : "";
+    const weeklyEvents = weekly.events.map((e) =>
+      `   \`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${e.label}`
+    ).join("\n");
+    blocks.push({ type: "divider" });
+    blocks.push({
+      type: "section",
+      text: { type: "mrkdwn", text: `*Weekly — ${weekly.label}*\n${nextStr}\n${weeklyEvents}` },
+    });
+  }
+
   if (cycles.length === 0) {
     blocks.push({
       type: "section",
