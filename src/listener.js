@@ -2,6 +2,7 @@ require("dotenv").config();
 const { App } = require("@slack/bolt");
 const { getActiveSchedule, getNextEvent, formatDuration, DAY_NAMES } = require("./spell-engine");
 const { renderSchedule } = require("./render-schedule");
+const { formatActor } = require("./actor-emoji");
 
 const app = new App({
   token: process.env.REDLINE_BOT_TOKEN,
@@ -33,7 +34,7 @@ app.command("/redline-next", async ({ ack, respond }) => {
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
   const text =
     `*Next: ${event.cycleLabel} · ${event.label}*\n` +
-    `• Owner: ${event.actor}\n` +
+    `• Owner: ${formatActor(event.actor)}\n` +
     `• When: ${slot} (${dateStr} UTC)\n` +
     `• In: *${formatDuration(msUntil)}*${linkSuffix}`;
   await respond({

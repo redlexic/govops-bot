@@ -1,4 +1,5 @@
 const { DAY_NAMES } = require("./spell-engine");
+const { formatActor } = require("./actor-emoji");
 
 function formatTime12h(time24) {
   const [h, m] = time24.split(":").map(Number);
@@ -16,7 +17,7 @@ function buildSlackMessage(event) {
 
   const body = [
     `• *${event.label}*`,
-    `     ◦ Owner: ${event.actor}`,
+    `     ◦ Owner: ${formatActor(event.actor)}`,
     `     ◦ Deadline: ${formatTime12h(event.time)}`,
     `     ◦ Link: ${link}`,
   ].join("\n");
