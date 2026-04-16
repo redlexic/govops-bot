@@ -1,3 +1,5 @@
+const { DAY_NAMES } = require("./spell-engine");
+
 function formatTime12h(time24) {
   const [h, m] = time24.split(":").map(Number);
   const suffix = h >= 12 ? "pm" : "am";
@@ -5,9 +7,8 @@ function formatTime12h(time24) {
   return `${h12}:${String(m).padStart(2, "0")}${suffix} UTC`;
 }
 
-function buildSlackMessage(event, spellDate) {
-  const dayNames = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const heading = `Spell ${spellDate} — W${event.week} ${dayNames[event.day]} ${String(event.notifyHour).padStart(2, "0")}:00 UTC`;
+function buildSlackMessage(event) {
+  const heading = `🔔 ${event.cycleLabel} · W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`;
 
   const link = event.link
     ? `<${event.link.url}|${event.link.text}>`
@@ -15,7 +16,7 @@ function buildSlackMessage(event, spellDate) {
 
   const body = [
     `• *${event.label}*`,
-    `     ◦ Owner: ${event.responsible}`,
+    `     ◦ Owner: ${event.actor}`,
     `     ◦ Deadline: ${formatTime12h(event.time)}`,
     `     ◦ Link: ${link}`,
   ].join("\n");

@@ -1,9 +1,7 @@
 require("dotenv").config();
 const { App } = require("@slack/bolt");
-const events = require("./schedule");
-const { getCurrentCycleWeek, getSpellDate } = require("./cycle");
+const { getActiveSchedule, getNextEvent, formatDuration, DAY_NAMES } = require("./spell-engine");
 const { renderSchedule } = require("./render-schedule");
-const { findNextEvent, formatDuration } = require("./next-event");
 
 const app = new App({
   token: process.env.REDLINE_BOT_TOKEN,
@@ -11,38 +9,36 @@ const app = new App({
   socketMode: true,
 });
 
-function isoWeekday(date) {
-  return date.getUTCDay() || 7;
-}
-
 app.command("/redline-schedule", async ({ ack, respond }) => {
   await ack();
   const now = new Date();
-  const msg = renderSchedule(
-    events,
-    getCurrentCycleWeek(now),
-    isoWeekday(now),
-    now.getUTCHours(),
-    getSpellDate(now)
-  );
+  const scheduleData = getActiveSchedule(now);
+  const msg = renderSchedule(scheduleData);
   await respond({ response_type: "in_channel", text: msg.text, blocks: msg.blocks });
 });
 
 app.command("/redline-next", async ({ ack, respond }) => {
   await ack();
   const now = new Date();
-  const { event, occurrence, msUntil } = findNextEvent(events, now);
-  const dayNames = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const slot = `W${event.week} ${dayNames[event.day]} ${String(event.notifyHour).padStart(2, "0")}:00 UTC`;
+  const result = getNextEvent(now);
+
+  if (!result) {
+    await respond({ response_type: "in_channel", text: "No upcoming events found." });
+    return;
+  }
+
+  const { event, msUntil } = result;
+  const slot = `W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`;
+  const dateStr = event.datetime.toISOString().replace("T", " ").slice(0, 16);
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
   const text =
-    `*Next event: ${event.label}*\n` +
-    `• Owner: ${event.responsible}\n` +
-    `• When: ${slot} (${occurrence.toISOString().replace("T", " ").slice(0, 16)} UTC)\n` +
+    `*Next: ${event.cycleLabel} · ${event.label}*\n` +
+    `• Owner: ${event.actor}\n` +
+    `• When: ${slot} (${dateStr} UTC)\n` +
     `• In: *${formatDuration(msUntil)}*${linkSuffix}`;
   await respond({
     response_type: "in_channel",
-    text: `Next event: ${event.label} in ${formatDuration(msUntil)}`,
+    text: `Next event: ${event.cycleLabel} — ${event.label} in ${formatDuration(msUntil)}`,
     blocks: [{ type: "section", text: { type: "mrkdwn", text } }],
   });
 });
@@ -51,7 +47,7 @@ app.command("/redline-help", async ({ ack, respond }) => {
   await ack();
   const text =
     "*redline-bot commands*\n" +
-    "• `/redline-schedule` — show the full 2-week Spell Review schedule with current position\n" +
+    "• `/redline-schedule` — show both active 4-week spell cycles with current position\n" +
     "• `/redline-next` — show the next scheduled event and countdown\n" +
     "• `/redline-help` — show this message";
   await respond({

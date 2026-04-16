@@ -1,47 +1,56 @@
-const DAY_NAMES = ["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const { DAY_NAMES } = require("./spell-engine");
 
-function slotKey(week, day, hour) {
-  return week * 10000 + day * 100 + hour;
-}
-
-function findCurrentIndex(sorted, nowWeek, nowDay, nowHour) {
-  const nowKey = slotKey(nowWeek, nowDay, nowHour);
-  let idx = -1;
-  for (let i = 0; i < sorted.length; i++) {
-    const e = sorted[i];
-    if (slotKey(e.week, e.day, e.notifyHour) <= nowKey) idx = i;
-    else break;
-  }
-  return idx;
-}
-
-function formatRow(event, marker) {
-  const prefix = marker ? "▶ " : "   ";
-  const slot = `W${event.week} ${DAY_NAMES[event.day]} ${String(event.notifyHour).padStart(2, "0")}:00`;
-  const label = marker ? `*${event.label}*` : event.label;
+function formatRow(event, isCurrent) {
+  const prefix = isCurrent ? "▶ " : "   ";
+  const slot = `W${event.week} ${DAY_NAMES[event.day]} ${event.time}`;
+  const label = isCurrent ? `*${event.label}*` : event.label;
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
-  return `${prefix}\`${slot}\`  ${label} — _${event.responsible}_${linkSuffix}`;
+  return `${prefix}\`${slot}\`  ${label} — _${event.actor}_${linkSuffix}`;
 }
 
-function renderSchedule(events, nowWeek, nowDay, nowHour, spellDate) {
-  const sorted = [...events].sort(
-    (a, b) => slotKey(a.week, a.day, a.notifyHour) - slotKey(b.week, b.day, b.notifyHour)
+function renderCycleSection(cycle) {
+  const header = `*${cycle.cycleLabel} (${cycle.crafter}) — currently W${cycle.currentWeek}*`;
+  const rows = cycle.events.map((event, idx) =>
+    formatRow(event, idx === cycle.currentIdx)
   );
-  const currentIdx = findCurrentIndex(sorted, nowWeek, nowDay, nowHour);
 
-  const w1 = sorted.filter((e) => e.week === 1).map((e) => formatRow(e, sorted.indexOf(e) === currentIdx));
-  const w2 = sorted.filter((e) => e.week === 2).map((e) => formatRow(e, sorted.indexOf(e) === currentIdx));
+  const weekGroups = [0, 1, 2, 3].map((w) => {
+    const weekRows = rows.filter((_, idx) => cycle.events[idx].week === w);
+    if (weekRows.length === 0) return null;
+    return `_Week ${w}_\n${weekRows.join("\n")}`;
+  }).filter(Boolean);
 
-  const heading = `*Spell Review schedule — spell ${spellDate}*\nCurrently W${nowWeek} ${DAY_NAMES[nowDay]} ${String(nowHour).padStart(2, "0")}:00 UTC`;
+  return `${header}\n${weekGroups.join("\n\n")}`;
+}
+
+function renderSchedule(scheduleData) {
+  const { cycles, now } = scheduleData;
+  const timeStr = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
+  const dateStr = now.toISOString().slice(0, 10);
+  const heading = `*Spell Review — Active Cycles*\n${dateStr} ${timeStr} UTC`;
+
+  const blocks = [
+    { type: "section", text: { type: "mrkdwn", text: heading } },
+  ];
+
+  for (const cycle of cycles) {
+    blocks.push({ type: "divider" });
+    blocks.push({
+      type: "section",
+      text: { type: "mrkdwn", text: renderCycleSection(cycle) },
+    });
+  }
+
+  if (cycles.length === 0) {
+    blocks.push({
+      type: "section",
+      text: { type: "mrkdwn", text: "_No active cycles right now._" },
+    });
+  }
 
   return {
-    text: `Spell Review schedule (spell ${spellDate})`,
-    blocks: [
-      { type: "section", text: { type: "mrkdwn", text: heading } },
-      { type: "divider" },
-      { type: "section", text: { type: "mrkdwn", text: `*Week 1*\n${w1.join("\n")}` } },
-      { type: "section", text: { type: "mrkdwn", text: `*Week 2*\n${w2.join("\n")}` } },
-    ],
+    text: `Spell Review — ${cycles.length} active cycle(s)`,
+    blocks,
   };
 }
 
