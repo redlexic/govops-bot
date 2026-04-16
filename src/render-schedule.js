@@ -6,7 +6,7 @@ function formatRow(event, isCurrent) {
   const slot = `W${event.week} ${DAY_NAMES[event.day]} ${event.time}`;
   const label = isCurrent ? `*${event.label}*` : event.label;
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
-  return `${prefix}\`${slot}\`  ${label}  ${formatActor(event.actor)}${linkSuffix}`;
+  return `${prefix}\`${slot}\` ${formatActor(event.actor)}  ${label}${linkSuffix}`;
 }
 
 function renderCycleSection(cycle) {
