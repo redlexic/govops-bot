@@ -14,7 +14,9 @@ const ACTOR_EMOJI = {
   "Delegates": "🗳️",
   "Sky Core": "🏛️",
   "Governance": "⚖️",
-  "Spell Coordinator": "📋",
+  "Joint": "🤝",
+  "Core Spell Team": "🟠",
+  "Crafter": "🟠",
   "Dewiz": "🟠",
   "Sidestream": "🟠",
 };
