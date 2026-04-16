@@ -9,7 +9,12 @@ function formatTime12h(time24) {
 }
 
 function buildSlackMessage(event) {
-  const heading = `🔔 ${event.cycleLabel} · W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`;
+  const now = new Date();
+  const nowTime = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
+  const slot = event.week != null
+    ? `W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`
+    : `${DAY_NAMES[event.day]} ${event.time} UTC`;
+  const heading = `🔔 ${event.cycleLabel} · ${slot} · ${nowTime}`;
 
   const link = event.link
     ? `<${event.link.url}|${event.link.text}>`
