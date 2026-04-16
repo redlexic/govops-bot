@@ -2,7 +2,7 @@ const { DAY_NAMES } = require("./spell-engine");
 const { formatActor } = require("./actor-emoji");
 
 function formatRow(event, isCurrent) {
-  const prefix = isCurrent ? "▶ " : "   ";
+  const prefix = isCurrent ? "👉 " : "   ";
   const slot = `W${event.week} ${DAY_NAMES[event.day]} ${event.time}`;
   const label = isCurrent ? `*${event.label}*` : event.label;
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";

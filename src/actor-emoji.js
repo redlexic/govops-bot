@@ -15,10 +15,10 @@ const ACTOR_EMOJI = {
   "Sky Core": "🏛️",
   "Governance": "⚖️",
   "Joint": "🤝",
-  "Core Spell Team": "🟠",
-  "Crafter": "🟠",
-  "Dewiz": "🟠",
-  "Sidestream": "🟠",
+  "Core Spell Team": "🟢",
+  "Crafter": "🟢",
+  "Dewiz": "🟢",
+  "Sidestream": "🟢",
 };
 
 function formatActor(actor) {
