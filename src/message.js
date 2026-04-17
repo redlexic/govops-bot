@@ -11,16 +11,18 @@ function formatTime12h(time24) {
 function buildSlackMessage(event) {
   const now = new Date();
   const nowTime = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
-  const slot = event.week != null
-    ? `W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`
-    : `${DAY_NAMES[event.day]} ${event.time} UTC`;
-  const heading = `🔔 ${event.cycleLabel} · ${slot} · ${nowTime}`;
+
+  const cycleName = event.week != null
+    ? `🔔 ${event.cycleLabel} · W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`
+    : `🔔 Weekly Governance Poll Cycle · ${DAY_NAMES[event.day]} ${event.time} UTC`;
 
   const link = event.link
     ? `<${event.link.url}|${event.link.text}>`
     : "N/A";
 
   const body = [
+    `Current Time: ${nowTime}`,
+    ``,
     `• *${event.label}*`,
     `     ◦ Owner: ${formatActor(event.actor)}`,
     `     ◦ Deadline: ${formatTime12h(event.time)}`,
@@ -28,13 +30,13 @@ function buildSlackMessage(event) {
   ].join("\n");
 
   return {
-    text: heading,
+    text: cycleName,
     blocks: [
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*${heading}*\n\n${body}`,
+          text: `*${cycleName}*\n${body}`,
         },
       },
     ],
