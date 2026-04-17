@@ -1,0 +1,52 @@
+# Work arrangement with SLA
+
+## Purpose
+
+The Atlas is a massive documentation trying to capture the ecosystem processes, parameters, and document knowledge. While the AA team is the team responsible for the development of the Atlas, there are certain responsibilities for the Facilitators in terms of keeping the Atlas up to date and then later handling the Artifacts for Agents that have reached self-governance. The AA team has been having a fruitful and rewarding collaboration with all of the Facilitators. To facilitate the SLA’s we have for each other and the fact that we work in different time zones, we prepared a suggested workflow for when we are collaborating on different edits. Please read, come with input, and then we can align on a workflow. Let’s build together!   
+
+## Scope
+
+- This agreement covers Atlas edits where Operational Facilitators contribute drafting, review, and/or internal coordination before the edit is submitted for inclusion in the AA Atlas Edit Weekly Cycle proposal.
+- This workflow governs timing, ownership and consequences.
+- Out of scope are edits that do not need to be included in the Atlas Edit Weekly Cycle, such as follow-up changes after Executive Votes, updating Active data documents, and updates of Spark Artifact following the Root Edit Primitive.
+
+## Roles & responsibilities
+
+### Atlas Axis (AA)
+
+- Owns the overall weekly-cycle coordination, proposal assembly, and submission.
+- Provides standards, required fields, and formatting expectations for edit submissions.
+- Provides feedback within the agreed review window when edits are received on time.
+- Communicates inclusion decisions and downstream impacts (e.g., sequencing for spells) once the proposal is assembled.
+
+### Operational Facilitators
+
+- Own the end-to-end internal coordination for any edit their team is driving.
+- Ensure the edit is **complete, internally reviewed, and coherent** before final submission to AA team.
+- Secure all required sign-offs before the submission deadline.
+
+## Weekly cycle timing and submission expectations
+
+### Background (shared context)
+
+- The weekly proposal is intended to be published to the Forum by 08:00 UTC each Friday (see https://sky-atlas.io/#f7e857e0-9de6-47ee-8817-966cb46ac9d6). In practice, the AA team very seldom meets this deadline (late SH sign-offs, late edits, etc.), but it remains the general target.
+- Prior to publication, AA runs an internal quality review; edits submitted under the AA handle need to meet AA’s submission standards.
+- The timing below is designed to protect a reasonable quality assessment window and reduce last‑minute/weekend work for everyone.
+
+### Collaboration workflow (how we aim to work together)
+
+- **Submission deadline:** Thursday 20:00 UTC (so AA has time for quality assessment).
+- **Where to send it:** Please communicate edits intended for that week’s cycle in the designated AA intake channel (Discord for now; Slack once migrated).
+- **Suggested submission format (if feasible):** A PR-style workflow (PR in a shared or private repo) will make review much faster.
+- **Feedback request window:** If you’d like feedback from AA before Thursday submission, please request feedback by **Wednesday 20:00 UTC**. We’ll aim to respond within **24 hours**.
+- **Early heads-up (helpful):** If you expect to submit edits that week, please flag it as early as possible (ideally by **Tuesday EOD UTC**), including expected count and priority.
+- **If issues come up:** If we spot issues during quality assessment, we’ll work together to resolve them wherever possible.
+- **Quality bar / avoidable issues:** However, if an edit contains *clearly avoidable issues* (e.g., missing required fields/links, inconsistent numbers, broken references, formatting that prevents review, or other errors that indicate it hasn’t been internally reviewed), we may not be able to include it in **that week’s** proposal and it may need to roll to the next cycle.
+- **When you submit, please ensure the edit is:**
+    - internally reviewed by the Operational Facilitator team, and
+    - complete (all required fields, links, context, and rationale), and
+    - **SH signed-off** (where applicable), with sign-off recorded as either a link to the sign-off or a screenshot.
+- **If timing slips:** If an edit comes in after **Thursday 20:00 UTC**, we’ll do our best to assess it, but it may need to roll to the following week’s cycle depending on QA bandwidth and proposal assembly timing.
+    - This can create ripple effects including (but not limited to):
+        - delayed governance progression,
+        - delayed inclusion of the item in upcoming spells

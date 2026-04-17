@@ -308,3 +308,59 @@ a new type of event is editing `CYCLE_EVENTS`.
 4. **Me**: also fix the currently-broken Railway listener deploy
    (`RAILWAY_CONFIG_FILE` issue from earlier) so the new `/redline-schedule`
    output is actually visible.
+
+Open question - 
+* when does the 4 day delegate poll close exactly?
+* Regular star spell performs parameter changes on existing modules - deploys a new instance of a module that is on production
+by the same star or other star without bringing novel code into the deployment
+* SPell coordinator vs EPL
+* 2 Forum posts on Wednesday? Star post & also AA's Tech Scope & Risk Assessments?
+* When it said "Monday Morning Deliver PR" I put 10:00
+* is Thursday "Atlas/Artifacts Updated or Incorporate in Atlas" by AA/OF or CC Risk Advisor?
+* Confirm Actor for: Friday 16:00 - Add Spell info to Executive Sheet - CF
+Friday 16:00 - Confirm Spell Address in Exec Sheet - Star
+* W2 Tue 14:30 CF/EPL review Missing — in W1 Tue 14:30 instead. Did it move from │ W2 to W1?
+
+Manual composition of all schedule events:
+
+Week 0 (Propose & Prioritize)
+Monday Midnight - Submit Spell Form - AA
+Tuesday Midnight - Discuss content & blockers - Joint
+Wednesday 16:00 - Deliver to CC Tracker - EPL
+Friday EOD - Prioritize Core & Star Content - Rune
+
+Week 1 (Finalize Scope)
+Tuesday 14:30 - Review items in CC Tracker - Core Spell Team
+Tuessday 17:00 (EOD) - Communicate deviations (CF to EPL)
+Wed 16:00: Poston Forum (Tech Scope, Risk Assessments) - AA
+Wed EOD - Complete deployment parameters table - EPL
+Thursday 16:00: CC Risk Advisor reviews Financial Risk - CC Risk Advisor
+Thursday 18:00 - AA Drafts Atlas Edit Proposal- AA
+Friday 08:00 - AA Submits Atlas Edit Proposal - AA
+
+Week 2 (Governance)
+Monday 10:00: Deliver signed-off PR for review - Star
+Monday 0:00 - Begin Star Spell Review - Core Spell Team
+Monday 0:00 - Aligned Delegate Vote Begins - Delegates
+Monday 16:00 - Publish Governance Poll - CF
+Tuesday 16:00: Sky Core GovOps Meeting - Core Spell Team
+Tuesday 0:00 - Star Spell Review Continues (day 2 of 5) - Core Spell Team
+Tuesday 0:00 - Aligned Delegate Vote Continues (day 2 of 4) - Delegates
+Wednesday 0:00 - Star Spell Review Continues (day 3 of 5) - Core Spell Team
+Wednesday 0:00 - Aligned Delegate Vote Continues (day 3 of 4) - Delegates
+Thursday 0:00 - Star Spell Review Continues (day 4 of 5) - Core Spell Team
+Thursday 0:00 - Aligned Delegate Vote Concludes (day 4 of 4) - Delegates 
+Thursday 23:59: Incorporate in Atlas (if passed) - CC Risk Advisor
+Friday 0:00 - Star Spell Review Concludes (day 5 of 5) - Core Spell Team
+Friday 16:00: Deliver Star Spell Code - Star
+Friday 16:00 - Add Spell info to Executive Sheet - CF
+Friday 16:00 - Confirm Spell Address in Exec Sheet - Star
+
+Week 3 (Crafting & Publication)
+Monday 0:00 - Core Spell Crafting & Review Begins (day 1 of 4) - (Core Spell Team)
+Monday 0:00 - Star Spell Retrospective - EPL, Star, Reviewers
+Tuesday 0:00 - Core Spell Crafting & Review Continues (day 2 of 4)  (Core Spell Team)
+Tuesday 16:00 - Merge Exectuve Document
+Tuesday 16:00 -- Publish Executive Vote
+Wednesday 0:00 - Core Spell Crafting & Review Continues (day 3 of 4)  (Core Spell Team)
+Thursday 0:00 - Core Spell Crafting & Review Concludes (day 4 of 4)  (Core Spell Team)
