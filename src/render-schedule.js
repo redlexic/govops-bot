@@ -1,25 +1,35 @@
-const { DAY_NAMES } = require("./spell-engine");
+const { DAY_NAMES, formatDuration } = require("./spell-engine");
 const { formatActor } = require("./actor-emoji");
 
-function formatRow(event, isCurrent) {
-  const prefix = isCurrent ? "👉 " : "   ";
+function formatTimeUTC(now) {
+  return `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
+}
+
+function formatPointerLine(now, nextDatetime) {
+  const msUntil = nextDatetime - now;
+  return `👉 *now ${formatTimeUTC(now)} · next in ${formatDuration(msUntil)}*`;
+}
+
+function formatRow(event) {
   const slot = `W${event.week} ${DAY_NAMES[event.day]} ${event.time}`;
-  const label = isCurrent ? `*${event.label}*` : event.label;
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
-  return `${prefix}\`${slot}\` ${formatActor(event.actor)}  ${label}${linkSuffix}`;
+  return `   \`${slot}\` ${formatActor(event.actor)}  ${event.label}${linkSuffix}`;
 }
 
 function renderCycleSection(cycle, now) {
-  const timeStr = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
-  const header = `*${cycle.cycleLabel} (${cycle.crafter}) — currently W${cycle.currentWeek} · ${timeStr}*`;
-  const rows = cycle.events.map((event, idx) =>
-    formatRow(event, idx === cycle.currentIdx)
-  );
+  const header = `*${cycle.cycleLabel} (${cycle.crafter}) — currently W${cycle.currentWeek} · ${formatTimeUTC(now)}*`;
+  const nextIdx = cycle.nextIdx;
 
   const weekGroups = [0, 1, 2, 3].map((w) => {
-    const weekRows = rows.filter((_, idx) => cycle.events[idx].week === w);
-    if (weekRows.length === 0) return null;
-    return `_Week ${w}_\n${weekRows.join("\n")}`;
+    const lines = [];
+    for (let i = 0; i < cycle.events.length; i++) {
+      const e = cycle.events[i];
+      if (e.week !== w) continue;
+      if (i === nextIdx) lines.push(formatPointerLine(now, e.datetime));
+      lines.push(formatRow(e));
+    }
+    if (lines.length === 0) return null;
+    return `_Week ${w}_\n${lines.join("\n")}`;
   }).filter(Boolean);
 
   return `${header}\n${weekGroups.join("\n\n")}`;
@@ -27,9 +37,8 @@ function renderCycleSection(cycle, now) {
 
 function renderSchedule(scheduleData) {
   const { cycles, now } = scheduleData;
-  const timeStr = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
   const dateStr = now.toISOString().slice(0, 10);
-  const heading = `*Spell Review — Active Cycles*\n${dateStr} ${timeStr} UTC`;
+  const heading = `*Spell Review — Active Cycles*\n${dateStr} ${formatTimeUTC(now)}`;
 
   const blocks = [
     { type: "section", text: { type: "mrkdwn", text: heading } },
@@ -45,29 +54,23 @@ function renderSchedule(scheduleData) {
 
   if (scheduleData.weekly) {
     const { weekly } = scheduleData;
-    const { formatDuration } = require("./spell-engine");
-    const nowDay = now.getUTCDay() || 7;
-    const nowKey = nowDay * 100 + now.getUTCHours();
-
-    let currentIdx = -1;
-    for (let i = 0; i < weekly.events.length; i++) {
-      const e = weekly.events[i];
-      const eKey = e.day * 100 + parseInt(e.time, 10);
-      if (eKey <= nowKey) currentIdx = i;
-    }
-
     const nextStr = weekly.next
       ? `Next: ${DAY_NAMES[weekly.next.event.day]} ${weekly.next.event.time} UTC (in ${formatDuration(weekly.next.msUntil)})`
       : "";
-    const weeklyRows = weekly.events.map((e, i) => {
-      const prefix = i === currentIdx ? "👉 " : "   ";
-      const label = i === currentIdx ? `*${e.label}*` : e.label;
-      return `${prefix}\`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${label}`;
-    }).join("\n");
+    const nextDay = weekly.next ? weekly.next.event.day : null;
+    const nextTime = weekly.next ? weekly.next.event.time : null;
+
+    const weeklyLines = [];
+    for (const e of weekly.events) {
+      if (e.day === nextDay && e.time === nextTime) {
+        weeklyLines.push(formatPointerLine(now, weekly.next.event.datetime));
+      }
+      weeklyLines.push(`   \`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${e.label}`);
+    }
     blocks.push({ type: "divider" });
     blocks.push({
       type: "section",
-      text: { type: "mrkdwn", text: `*Weekly — ${weekly.label}*\n${nextStr}\n${weeklyRows}` },
+      text: { type: "mrkdwn", text: `*Weekly — ${weekly.label}*\n${nextStr}\n${weeklyLines.join("\n")}` },
     });
   }
 

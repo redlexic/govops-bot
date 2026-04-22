@@ -103,6 +103,7 @@ function getNextWeeklyEvent(now) {
   const nowHour = now.getUTCHours();
   const nowMin = now.getUTCMinutes();
 
+  let best = null;
   for (const e of WEEKLY_EVENTS) {
     const [eH, eM] = e.time.split(":").map(Number);
     let daysAhead = e.day - nowDay;
@@ -112,24 +113,27 @@ function getNextWeeklyEvent(now) {
     const datetime = new Date(now.getTime());
     datetime.setUTCDate(datetime.getUTCDate() + daysAhead);
     datetime.setUTCHours(eH, eM, 0, 0);
+    const msUntil = datetime - now;
 
-    return {
-      event: {
-        datetime,
-        label: e.label,
-        actor: e.actor,
-        cycleLabel: "Weekly",
-        week: null,
-        day: e.day,
-        time: e.time,
-        link: e.link || null,
-        publishDate: null,
-        crafter: null,
-      },
-      msUntil: datetime - now,
-    };
+    if (!best || msUntil < best.msUntil) {
+      best = {
+        event: {
+          datetime,
+          label: e.label,
+          actor: e.actor,
+          cycleLabel: "Weekly",
+          week: null,
+          day: e.day,
+          time: e.time,
+          link: e.link || null,
+          publishDate: null,
+          crafter: null,
+        },
+        msUntil,
+      };
+    }
   }
-  return null;
+  return best;
 }
 
 function getEventsForHour(now = new Date()) {
@@ -154,12 +158,11 @@ function getEventsForHour(now = new Date()) {
 function getActiveSchedule(now = new Date()) {
   const cycles = getActiveCycles(now);
   for (const cycle of cycles) {
-    let currentIdx = -1;
+    let nextIdx = -1;
     for (let i = 0; i < cycle.events.length; i++) {
-      if (cycle.events[i].datetime <= now) currentIdx = i;
-      else break;
+      if (cycle.events[i].datetime > now) { nextIdx = i; break; }
     }
-    cycle.currentIdx = currentIdx;
+    cycle.nextIdx = nextIdx;
   }
 
   const weeklyNext = getNextWeeklyEvent(now);
