@@ -1,4 +1,4 @@
-const { DAY_NAMES } = require("./spell-engine");
+const { DAY_NAMES, formatTimeUTC } = require("./time");
 const { formatActor } = require("./actor-emoji");
 
 function formatTime12h(time24) {
@@ -10,7 +10,7 @@ function formatTime12h(time24) {
 
 function buildSlackMessage(event) {
   const now = new Date();
-  const nowTime = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
+  const nowTime = formatTimeUTC(now);
 
   const cycleName = event.week != null
     ? `🔔 ${event.cycleLabel} · W${event.week} ${DAY_NAMES[event.day]} ${event.time} UTC`

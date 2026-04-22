@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { App } = require("@slack/bolt");
-const { getActiveSchedule, getNextEvent, formatDuration, DAY_NAMES } = require("./spell-engine");
+const { DAY_NAMES, formatDuration } = require("./time");
+const { getActiveSchedule, getNextEvent } = require("./schedule-query");
 const { renderSchedule } = require("./render-schedule");
 const { formatActor } = require("./actor-emoji");
 

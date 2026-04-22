@@ -1,9 +1,5 @@
-const { DAY_NAMES, formatDuration } = require("./spell-engine");
+const { DAY_NAMES, formatDuration, formatTimeUTC, todayUTC } = require("./time");
 const { formatActor } = require("./actor-emoji");
-
-function formatTimeUTC(now) {
-  return `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")} UTC`;
-}
 
 function formatPointerLine(now, nextDatetime) {
   const msUntil = nextDatetime - now;
@@ -37,8 +33,7 @@ function renderCycleSection(cycle, now) {
 
 function renderSchedule(scheduleData) {
   const { cycles, now } = scheduleData;
-  const dateStr = now.toISOString().slice(0, 10);
-  const heading = `*Spell Review — Active Cycles*\n${dateStr} ${formatTimeUTC(now)}`;
+  const heading = `*Spell Review — Active Cycles*\n${todayUTC(now)} ${formatTimeUTC(now)}`;
 
   const blocks = [
     { type: "section", text: { type: "mrkdwn", text: heading } },
@@ -57,14 +52,12 @@ function renderSchedule(scheduleData) {
     const nextStr = weekly.next
       ? `Next: ${DAY_NAMES[weekly.next.event.day]} ${weekly.next.event.time} UTC (in ${formatDuration(weekly.next.msUntil)})`
       : "";
-    const nextDay = weekly.next ? weekly.next.event.day : null;
-    const nextTime = weekly.next ? weekly.next.event.time : null;
+    const nextIdx = weekly.next ? weekly.next.idx : -1;
 
     const weeklyLines = [];
-    for (const e of weekly.events) {
-      if (e.day === nextDay && e.time === nextTime) {
-        weeklyLines.push(formatPointerLine(now, weekly.next.event.datetime));
-      }
+    for (let i = 0; i < weekly.events.length; i++) {
+      if (i === nextIdx) weeklyLines.push(formatPointerLine(now, weekly.next.event.datetime));
+      const e = weekly.events[i];
       weeklyLines.push(`   \`${DAY_NAMES[e.day]} ${e.time}\` ${formatActor(e.actor)}  ${e.label}`);
     }
     blocks.push({ type: "divider" });
