@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { WebClient } = require("@slack/web-api");
-const { getEventsForHour } = require("./schedule-query");
+const { getEventsForHour } = require("./schedule");
 const { buildSlackMessage } = require("./message");
 
 const slack = new WebClient(process.env.REDLINE_BOT_TOKEN);

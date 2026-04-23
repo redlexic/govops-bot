@@ -1,6 +1,6 @@
-const { MS_PER_DAY, MS_PER_HOUR, MS_PER_MIN, MONTH_ABBR } = require("./time");
-const { SPELL_CALENDAR } = require("./schedule/spell-calendar");
-const { CYCLE_EVENTS } = require("./schedule/spell-review-cycle");
+const { MS_PER_DAY, MS_PER_HOUR, MS_PER_MIN, MONTH_ABBR } = require("../time");
+const { SPELL_CALENDAR } = require("./spell-calendar");
+const { CYCLE_EVENTS } = require("./spell-review-cycle");
 
 // publishDate is W3 Thu. W0 Mon = publishDate − 24 days; W3 Fri = publishDate + 1 day − 1 ms.
 function getW0Monday(publishDate) {

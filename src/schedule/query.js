@@ -1,6 +1,6 @@
-const { todayUTC } = require("./time");
-const { SPELL_CALENDAR } = require("./schedule/spell-calendar");
-const { WEEKLY_EVENTS } = require("./schedule/atlas-weekly-cycle");
+const { todayUTC } = require("../time");
+const { SPELL_CALENDAR } = require("./spell-calendar");
+const { WEEKLY_EVENTS } = require("./atlas-weekly-cycle");
 const { getW0Monday, expandCycle, getActiveCycles } = require("./cycle");
 
 // Find the first event whose datetime is strictly after `now`, in a
