@@ -51,14 +51,57 @@ function expandCycle(spell) {
     .sort((a, b) => a.datetime - b.datetime);
 }
 
+function findNextNonSkippedSpell(fromIndex) {
+  for (let i = fromIndex + 1; i < SPELL_CALENDAR.length; i++) {
+    if (SPELL_CALENDAR[i].crafter) return SPELL_CALENDAR[i];
+  }
+  return null;
+}
+
+function toISODate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function makePlaceholderEvent(nextSpell) {
+  const nextW0Monday = getW0Monday(new Date(`${nextSpell.publishDate}T00:00:00Z`));
+  return {
+    datetime: nextW0Monday,
+    label: "New cycle begins",
+    actor: nextSpell.crafter,
+    cycleLabel: buildCycleLabel(nextSpell),
+    week: 0,
+    day: 1,
+    time: "00:00",
+    link: null,
+    publishDate: nextSpell.publishDate,
+    crafter: nextSpell.crafter,
+  };
+}
+
 function getActiveCycles(now) {
   const active = [];
-  for (const spell of SPELL_CALENDAR) {
-    if (!spell.crafter) continue;
+  for (let i = 0; i < SPELL_CALENDAR.length; i++) {
+    const spell = SPELL_CALENDAR[i];
     const pubDate = new Date(`${spell.publishDate}T00:00:00Z`);
     const w0Monday = getW0Monday(pubDate);
     const w3Friday = getW3Friday(pubDate);
     if (now < w0Monday || now > w3Friday) continue;
+
+    if (!spell.crafter) {
+      const nextSpell = findNextNonSkippedSpell(i);
+      if (!nextSpell) continue;
+      const nextW0Monday = getW0Monday(new Date(`${nextSpell.publishDate}T00:00:00Z`));
+      active.push({
+        skipped: true,
+        publishDate: spell.publishDate,
+        skipReason: spell.skipReason,
+        w0MondayISO: toISODate(w0Monday),
+        nextCrafter: nextSpell.crafter,
+        nextW0MondayISO: toISODate(nextW0Monday),
+        events: [makePlaceholderEvent(nextSpell)],
+      });
+      continue;
+    }
 
     const weeksSinceW0 = Math.floor((now - w0Monday) / (7 * MS_PER_DAY));
     active.push({
