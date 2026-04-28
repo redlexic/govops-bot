@@ -1,4 +1,4 @@
-// Canonical 4-week spell cycle (W0–W3).
+// Canonical 5-week spell cycle (W0–W4).
 // day: ISO weekday (1=Mon … 5=Fri)
 // time: UTC HH:MM — notification fires at this hour
 // Deadlines marked "Midnight" or "EOD" in the source use 09:00 or 17:00 respectively.
@@ -36,7 +36,6 @@ const CYCLE_EVENTS = [
   { week: 2, day: 3, time: "09:00", label: "Aligned Delegate Vote continues (day 3 of 4)", actor: "Delegates" },
   { week: 2, day: 4, time: "09:00", label: "Star Spell Review continues (day 4 of 5)", actor: "Reviewer" },
   { week: 2, day: 4, time: "16:00", label: "Aligned Delegate Vote concludes (day 4 of 4)", actor: "Delegates" },
-  { week: 2, day: 4, time: "23:59", label: "Incorporate in Atlas (if passed)", actor: "CF" },
   { week: 2, day: 5, time: "09:00", label: "Star Spell Review concludes (day 5 of 5)", actor: "Reviewer" },
   { week: 2, day: 5, time: "16:00", label: "Deliver Star Spell Code", actor: "Star" },
   { week: 2, day: 5, time: "16:00", label: "Add Spell info to Executive Sheet", actor: "CF", link: { url: EXEC_SHEET_URL, text: "exec sheet" } },
@@ -50,6 +49,10 @@ const CYCLE_EVENTS = [
   { week: 3, day: 3, time: "09:00", label: "Core Spell Crafting & Review continues (day 3 of 4)", actor: "Crafter" },
   { week: 3, day: 4, time: "09:00", label: "Core Spell Crafting & Review concludes (day 4 of 4)", actor: "Crafter" },
   { week: 3, day: 4, time: "16:00", label: "Publish Executive Vote", actor: "CF" },
+
+  // ── Week 4 — Execution ─────────────────────────────────────────
+  { week: 4, day: 1, time: "14:00", label: "Execute Spell", actor: "CF" },
+  { week: 4, day: 4, time: "23:59", label: "Incorporate in Atlas (if passed)", actor: "CF" },
 ];
 
 module.exports = { CYCLE_EVENTS };

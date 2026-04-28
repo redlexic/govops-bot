@@ -18,7 +18,8 @@ function formatRow(event) {
   const date = formatShortDate(event.datetime);
   const slot = `${DAY_NAMES[event.day]} ${date}, ${event.time}`;
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
-  return `   \`${slot}\` ${formatActor(event.actor)}  ${event.label}${linkSuffix}`;
+  const wrapupSuffix = event.isWrapup ? ` _(${event.cycleLabel} wrapup)_` : "";
+  return `   \`${slot}\` ${formatActor(event.actor)}  ${event.label}${linkSuffix}${wrapupSuffix}`;
 }
 
 function mondayOfWeek(date) {
@@ -38,14 +39,16 @@ function renderSkippedCycleSection(cycle, now) {
   const skippedSpellDate = formatLongDate(new Date(`${cycle.publishDate}T00:00:00Z`));
   const nextW0MondayDate = formatLongDate(new Date(`${cycle.nextW0MondayISO}T00:00:00Z`));
   const header =
-    `*4 Week Executive Cycle (Cycle skipped due to ${cycle.skipReason})*\n` +
+    `*5 Week Executive Cycle (Cycle skipped due to ${cycle.skipReason})*\n` +
     `*There will be no executive spell on: ${skippedSpellDate}*\n` +
     `Next new cycle begins ${nextW0MondayDate}.`;
 
   const lines = [];
-  const event = cycle.events[0];
-  if (cycle.nextIdx === 0) lines.push(formatPointerLine(now, event.datetime));
-  lines.push(formatRow(event));
+  for (let i = 0; i < cycle.events.length; i++) {
+    const e = cycle.events[i];
+    if (i === cycle.nextIdx) lines.push(formatPointerLine(now, e.datetime));
+    lines.push(formatRow(e));
+  }
 
   return `${header}\n\n${lines.join("\n")}`;
 }
@@ -55,7 +58,7 @@ function renderCycleSection(cycle, now) {
   const spellDate = formatLongDate(new Date(`${cycle.publishDate}T00:00:00Z`));
   const todayDate = formatLongDate(now);
   const header =
-    `*4 Week Executive Cycle (${cycle.crafter} coding, ${reviewer} reviewing)*\n` +
+    `*5 Week Executive Cycle (${cycle.crafter} coding, ${reviewer} reviewing)*\n` +
     `*Executive Spell Date: ${spellDate}. Today's Date: ${todayDate} ${formatTimeUTC(now)}*`;
   const nextIdx = cycle.nextIdx;
 
@@ -63,7 +66,8 @@ function renderCycleSection(cycle, now) {
     const lines = [];
     for (let i = 0; i < cycle.events.length; i++) {
       const e = cycle.events[i];
-      if (e.week !== w) continue;
+      const eventWeek = e.displayWeek ?? e.week;
+      if (eventWeek !== w) continue;
       if (i === nextIdx) lines.push(formatPointerLine(now, e.datetime));
       lines.push(formatRow(e));
     }

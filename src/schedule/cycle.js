@@ -2,13 +2,21 @@ const { MS_PER_DAY, MS_PER_HOUR, MS_PER_MIN, MONTH_ABBR } = require("../time");
 const { SPELL_CALENDAR } = require("./spell-calendar");
 const { CYCLE_EVENTS } = require("./spell-review-cycle");
 
-// publishDate is W3 Thu. W0 Mon = publishDate − 24 days; W3 Fri = publishDate + 1 day − 1 ms.
+// publishDate is W3 Thu. W0 Mon = publishDate − 24 days; cycle end = W3 Fri end-of-day.
+// W4 events (Execute Spell, Incorporate in Atlas) belong to this spell but render
+// in the next-pair cycle's W0 view (the cycle whose publishDate is +28 days).
 function getW0Monday(publishDate) {
   return new Date(publishDate.getTime() - 24 * MS_PER_DAY);
 }
 
-function getW3Friday(publishDate) {
+function getCycleEnd(publishDate) {
   return new Date(publishDate.getTime() + MS_PER_DAY + (24 * MS_PER_HOUR) - 1);
+}
+
+function addDaysToISO(isoDate, days) {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 function buildCycleLabel(spell) {
@@ -62,6 +70,17 @@ function toISODate(date) {
   return date.toISOString().slice(0, 10);
 }
 
+// W4 events (Execute Spell, Incorporate) of the spell published 28 days before
+// `currentPublishDate`, displayed under W0 of the current cycle as wrapup.
+function getPreviousSpellWrapupEvents(currentPublishDate) {
+  const prevPubDate = addDaysToISO(currentPublishDate, -28);
+  const prevSpell = SPELL_CALENDAR.find((s) => s.publishDate === prevPubDate && s.crafter);
+  if (!prevSpell) return [];
+  return expandCycle(prevSpell)
+    .filter((e) => e.week === 4)
+    .map((e) => ({ ...e, isWrapup: true, displayWeek: 0 }));
+}
+
 function makePlaceholderEvent(nextSpell) {
   const nextW0Monday = getW0Monday(new Date(`${nextSpell.publishDate}T00:00:00Z`));
   return {
@@ -84,13 +103,17 @@ function getActiveCycles(now) {
     const spell = SPELL_CALENDAR[i];
     const pubDate = new Date(`${spell.publishDate}T00:00:00Z`);
     const w0Monday = getW0Monday(pubDate);
-    const w3Friday = getW3Friday(pubDate);
-    if (now < w0Monday || now > w3Friday) continue;
+    const cycleEnd = getCycleEnd(pubDate);
+    if (now < w0Monday || now > cycleEnd) continue;
+
+    const wrapupEvents = getPreviousSpellWrapupEvents(spell.publishDate);
 
     if (!spell.crafter) {
       const nextSpell = findNextNonSkippedSpell(i);
       if (!nextSpell) continue;
       const nextW0Monday = getW0Monday(new Date(`${nextSpell.publishDate}T00:00:00Z`));
+      const events = [makePlaceholderEvent(nextSpell), ...wrapupEvents]
+        .sort((a, b) => a.datetime - b.datetime);
       active.push({
         skipped: true,
         publishDate: spell.publishDate,
@@ -98,19 +121,21 @@ function getActiveCycles(now) {
         w0MondayISO: toISODate(w0Monday),
         nextCrafter: nextSpell.crafter,
         nextW0MondayISO: toISODate(nextW0Monday),
-        events: [makePlaceholderEvent(nextSpell)],
+        events,
       });
       continue;
     }
 
     const weeksSinceW0 = Math.floor((now - w0Monday) / (7 * MS_PER_DAY));
+    const ownEvents = expandCycle(spell).filter((e) => e.week !== 4);
+    const events = [...ownEvents, ...wrapupEvents].sort((a, b) => a.datetime - b.datetime);
     active.push({
       spell,
       cycleLabel: buildCycleLabel(spell),
       crafter: spell.crafter,
       publishDate: spell.publishDate,
       currentWeek: Math.min(weeksSinceW0, 3),
-      events: expandCycle(spell),
+      events,
     });
   }
   active.sort((a, b) => a.publishDate.localeCompare(b.publishDate));
@@ -119,7 +144,7 @@ function getActiveCycles(now) {
 
 module.exports = {
   getW0Monday,
-  getW3Friday,
+  getCycleEnd,
   buildCycleLabel,
   makeCycleEvent,
   expandCycle,
