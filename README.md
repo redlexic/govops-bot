@@ -1,53 +1,128 @@
-# redline-bot
-
-Slack bot that sends recurring notifications for the **Spell Review** process — the biweekly cycle through which Sky Governance prepares, reviews, deploys, and publishes Executive Vote spells. Also responds to `/redline-schedule` and `/redline-next` slash commands.
-
-## How it works
-
 The bot has two runtime modes:
 
 - **Cron** (`src/index.js`, `npm start`) — a short-lived script triggered hourly by Railway's cron feature (`0 * * * *`). Each run checks whether we are in **Week 1** or **Week 2** of the current cycle, and if the current UTC hour matches any scheduled events, posts them to the configured Slack channel.
 - **Listener** (`src/listener.js`, `npm run listener`) — a long-lived Bolt app in Socket Mode that responds to slash commands (`/redline-schedule`, `/redline-next`) with the current schedule and countdown to the next event.
 
-Events that share the same notification hour are posted in the same run. The bot currently tracks **23 events** across the 2-week cycle.
 
-### Notification schedule
+**Cron** Runs 24h, 1 hr and 5m before the event time.  
 
-| Week | Day | Time (UTC) | Events |
-|------|-----|------------|--------|
-| 1 | Tue | 15:00 | Exec Sheet created, Agreement on content and roles |
-| 1 | Wed | 16:00 | Spell cleaned up for external contributions |
-| 1 | Fri | 23:59 | External code contributed via PR, Exec Sheet finalised |
-| 2 | Mon | 16:00 | Spell crafted |
-| 2 | Tue | 12:00 | BA Labs rate changes announced |
-| 2 | Tue | 16:00 | Spell code reviewed (vs Exec Sheet), Exec Doc merged |
-| 2 | Wed | 12:00 | Code review addressed, Exec Hash added |
-| 2 | Wed | 16:00 | Spell code reviewed (vs Exec Doc) |
-| 2 | Thu | 12:00 | Spell deployed, Testnet created |
-| 2 | Thu | 16:00 | Deployment approved, address published/confirmed/received, PR approved/merged |
-| 2 | Thu | 16:30 | Spell retro started |
 
-The full event list — including 32 additional events identified from the diagram and Atlas that do not yet have notification times — is documented in [`CROSS_REFERENCE.md`](CROSS_REFERENCE.md).
+**Listener** prints out something like the below when you type /redline-schedule to the bot, (imagine it with colorful emojis). 
+Shows all event deadlines, 
+shows who is responsible for each, 
+shows the date/time of NOW at the right spot in the schedule, 
+tells how long until the next event.
 
-## Project structure
-
+Sample /redline-schedule output:
 ```
-govops-bot/
-├── src/
-│   ├── index.js           # cron entry point — posts events due this hour
-│   ├── listener.js        # Socket Mode Bolt app — handles slash commands
-│   ├── schedule.js        # all 23 events (week, day, time, responsible party)
-│   ├── cycle.js           # derives current cycle week, cycle start, spell date
-│   ├── message.js         # Block Kit formatter for cron notifications
-│   ├── render-schedule.js # Block Kit formatter for /redline-schedule
-│   ├── next-event.js      # finds the next scheduled event + countdown
-│   └── hello.js           # smoke test — auth.test + a hello-world post
-├── references/            # source material used to build the schedule
-├── CROSS_REFERENCE.md     # events cross-referenced across all 3 sources
-├── slack-manifest.json    # Slack app manifest (recreate the app from this)
-├── railway.toml           # Railway deployment config
-├── .env.example
-└── package.json
+Spell Review — Active Cycles
+2026-04-29 18:32 UTC5 Week Executive Cycle (Dewiz coding, Sidestream reviewing)
+Executive Spell Date: May 7, 2026. Today's Date: Apr 29, 2026 18:32 UTCWeek 0
+   Mon Apr 13, 09:00 :large_orange_diamond: [AA]  Submit Spell Form
+   Mon Apr 13, 14:00 :large_blue_circle: [CF]  Execute Spell (Dewiz-Apr9 wrapup)
+   Tue Apr 14, 09:00 :handshake: [Joint]  Discuss content & blockers
+   Wed Apr 15, 16:00 :large_purple_circle: [EPL]  Deliver to CC Tracker
+   Thu Apr 16, 23:59 :large_blue_circle: [CF]  Incorporate in Atlas (if passed) (Dewiz-Apr9 wrapup)
+   Fri Apr 17, 17:00 :zap: [Rune]  Prioritize Core & Star ContentWeek 1
+   Tue Apr 21, 14:30 :large_blue_circle: [CF]  Review items in CC Tracker
+   Tue Apr 21, 17:00 :large_blue_circle: [CF]  Communicate deviations (CF → EPL)
+   Wed Apr 22, 16:00 :large_orange_diamond: [AA]  Post on Forum (Tech Scope, Risk Assessments)
+   Wed Apr 22, 17:00 :large_purple_circle: [EPL]  Complete deployment parameters table
+   Thu Apr 23, 16:00 :shield: [CC Risk Advisor]  CC Risk Advisor reviews Financial Risk
+   Thu Apr 23, 18:00 :large_orange_diamond: [AA]  AA drafts Atlas Edit Proposal
+   Fri Apr 24, 08:00 :large_orange_diamond: [AA]  AA submits Atlas Edit ProposalWeek 2
+   Mon Apr 27, 08:00 :star: [Star]  Deliver signed-off PR for review
+   Mon Apr 27, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review begins (day 1 of 5)
+   Mon Apr 27, 16:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote begins (day 1 of 4)
+   Mon Apr 27, 16:00 :large_blue_circle: [CF]  Publish Governance Poll
+   Tue Apr 28, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review continues (day 2 of 5)
+   Tue Apr 28, 09:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote continues (day 2 of 4)
+   Tue Apr 28, 16:00 :classical_building: [Sky Core]  Sky Core GovOps Meeting
+   Wed Apr 29, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review continues (day 3 of 5)
+   Wed Apr 29, 09:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote continues (day 3 of 4)
+:point_right: now 18:32 UTC · next in 14h 27m
+   Thu Apr 30, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review continues (day 4 of 5)
+   Thu Apr 30, 16:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote concludes (day 4 of 4)
+   Fri May 1, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review concludes (day 5 of 5)
+   Fri May 1, 16:00 :star: [Star]  Deliver Star Spell Code
+   Fri May 1, 16:00 :large_blue_circle: [CF]  Add Spell info to Executive Sheet  exec sheet
+   Fri May 1, 16:00 :large_purple_circle: [EPL]  Confirm Spell Address in Exec Sheet  exec sheetWeek 3
+   Mon May 4, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review begins (day 1 of 4)
+   Mon May 4, 09:00 :large_purple_circle: [EPL, Star, Reviewers]  Star Spell Retrospective
+   Tue May 5, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review continues (day 2 of 4)
+   Tue May 5, 16:00 :scales: [Governance]  Merge Executive Document
+   Wed May 6, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review continues (day 3 of 4)
+   Thu May 7, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review concludes (day 4 of 4)
+   Thu May 7, 16:00 :large_blue_circle: [CF]  Publish Executive Vote5 Week Executive Cycle (Cycle skipped due to Dewiz offsite)
+There will be no executive spell on: May 21, 2026
+Next new cycle begins May 11, 2026.
+
+   Mon Apr 27, 14:00 :large_blue_circle: [CF]  Execute Spell (Sidestream-Apr23 wrapup)
+:point_right: now 18:32 UTC · next in 1d 5h 26m
+   Thu Apr 30, 23:59 :large_blue_circle: [CF]  Incorporate in Atlas (if passed) (Sidestream-Apr23 wrapup)
+   Mon May 11, 00:00 :large_yellow_circle: [Sidestream]  New cycle beginsWeekly — Atlas Edit Weekly Cycle
+Next: Wed 20:00 UTC (in 1h 27m)
+   Mon Apr 27, 16:00 :large_blue_circle: [CF]  CF publishes Governance Polls (vote on previous week's Atlas Edit proposal opens)
+   Tue Apr 28, 17:00 :crystal_ball: [OF]  Early heads-up: flag expected edits for this week's cycle
+:point_right: now 18:32 UTC · next in 1h 27m
+   Wed Apr 29, 20:00 :crystal_ball: [OF]  Feedback request deadline (OF → AA, if review needed before submission)
+   Thu Apr 30, 16:00 :ballot_box_with_ballot: [Delegates]  Governance Polls close (vote on previous week's proposal concludes, 3-day vote)
+   Thu Apr 30, 20:00 :crystal_ball: [OF]  Edit submission deadline (complete, reviewed, SH signed-off)
+   Fri May 1, 08:00 :large_orange_diamond: [AA]  AA publishes Atlas Edit Weekly Cycle Proposal to Forumredline-bot  [11:53 AM]
+Spell Review — Active Cycles
+2026-04-29 18:53 UTC4 Week Executive Cycle (Dewiz coding, Sidestream reviewing)
+Executive Spell Date: May 7, 2026. Today's Date: Apr 29, 2026 18:53 UTCWeek 0
+   Mon Apr 13, 09:00 :large_orange_diamond: [AA]  Submit Spell Form
+   Mon Apr 13, 14:00 :large_blue_circle: [CF]  Execute Spell (Dewiz-Apr9 wrapup)
+   Tue Apr 14, 09:00 :handshake: [Joint]  Discuss content & blockers
+   Wed Apr 15, 16:00 :large_purple_circle: [EPL]  Deliver to CC Tracker
+   Thu Apr 16, 23:59 :large_blue_circle: [CF]  Incorporate in Atlas (if passed) (Dewiz-Apr9 wrapup)
+   Fri Apr 17, 17:00 :zap: [Rune]  Prioritize Core & Star ContentWeek 1
+   Tue Apr 21, 14:30 :large_blue_circle: [CF]  Review items in CC Tracker
+   Tue Apr 21, 17:00 :large_blue_circle: [CF]  Communicate deviations (CF → EPL)
+   Wed Apr 22, 16:00 :large_orange_diamond: [AA]  Post on Forum (Tech Scope, Risk Assessments)
+   Wed Apr 22, 17:00 :large_purple_circle: [EPL]  Complete deployment parameters table
+   Thu Apr 23, 16:00 :shield: [CC Risk Advisor]  CC Risk Advisor reviews Financial Risk
+   Thu Apr 23, 18:00 :large_orange_diamond: [AA]  AA drafts Atlas Edit Proposal
+   Fri Apr 24, 08:00 :large_orange_diamond: [AA]  AA submits Atlas Edit ProposalWeek 2
+   Mon Apr 27, 08:00 :star: [Star]  Deliver signed-off PR for review
+   Mon Apr 27, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review begins (day 1 of 5)
+   Mon Apr 27, 16:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote begins (day 1 of 4)
+   Mon Apr 27, 16:00 :large_blue_circle: [CF]  Publish Governance Poll
+   Tue Apr 28, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review continues (day 2 of 5)
+   Tue Apr 28, 09:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote continues (day 2 of 4)
+   Tue Apr 28, 16:00 :classical_building: [Sky Core]  Sky Core GovOps Meeting
+   Wed Apr 29, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review continues (day 3 of 5)
+   Wed Apr 29, 09:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote continues (day 3 of 4)
+:point_right: now 18:53 UTC · next in 14h 6m
+   Thu Apr 30, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review continues (day 4 of 5)
+   Thu Apr 30, 16:00 :ballot_box_with_ballot: [Delegates]  Aligned Delegate Vote concludes (day 4 of 4)
+   Fri May 1, 09:00 :large_yellow_circle: [Sidestream]  Star Spell Review concludes (day 5 of 5)
+   Fri May 1, 16:00 :star: [Star]  Deliver Star Spell Code
+   Fri May 1, 16:00 :large_blue_circle: [CF]  Add Spell info to Executive Sheet  exec sheet
+   Fri May 1, 16:00 :large_purple_circle: [EPL]  Confirm Spell Address in Exec Sheet  exec sheetWeek 3
+   Mon May 4, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review begins (day 1 of 4)
+   Mon May 4, 09:00 :large_purple_circle: [EPL, Star, Reviewers]  Star Spell Retrospective
+   Tue May 5, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review continues (day 2 of 4)
+   Tue May 5, 16:00 :scales: [Governance]  Merge Executive Document
+   Wed May 6, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review continues (day 3 of 4)
+   Thu May 7, 09:00 :large_green_circle: [Dewiz]  Core Spell Crafting & Review concludes (day 4 of 4)
+   Thu May 7, 16:00 :large_blue_circle: [CF]  Publish Executive Vote4 Week Executive Cycle (Cycle skipped due to Dewiz offsite)
+There will be no executive spell on: May 21, 2026
+Next new cycle begins May 11, 2026.
+
+   Mon Apr 27, 14:00 :large_blue_circle: [CF]  Execute Spell (Sidestream-Apr23 wrapup)
+:point_right: now 18:53 UTC · next in 1d 5h 5m
+   Thu Apr 30, 23:59 :large_blue_circle: [CF]  Incorporate in Atlas (if passed) (Sidestream-Apr23 wrapup)
+   Mon May 11, 00:00 :large_yellow_circle: [Sidestream]  New cycle beginsWeekly — Atlas Edit Weekly Cycle
+Next: Wed 20:00 UTC (in 1h 6m)
+   Mon Apr 27, 16:00 :large_blue_circle: [CF]  CF publishes Governance Polls (vote on previous week's Atlas Edit proposal opens)
+   Tue Apr 28, 17:00 :crystal_ball: [OF]  Early heads-up: flag expected edits for this week's cycle
+:point_right: now 18:53 UTC · next in 1h 6m
+   Wed Apr 29, 20:00 :crystal_ball: [OF]  Feedback request deadline (OF → AA, if review needed before submission)
+   Thu Apr 30, 16:00 :ballot_box_with_ballot: [Delegates]  Governance Polls close (vote on previous week's proposal concludes, 3-day vote)
+   Thu Apr 30, 20:00 :crystal_ball: [OF]  Edit submission deadline (complete, reviewed, SH signed-off)
+   Fri May 1, 08:00 :large_orange_diamond: [AA]  AA publishes Atlas Edit Weekly Cycle Proposal to Forum
 ```
 
 ## Setup
