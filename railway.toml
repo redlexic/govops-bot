@@ -3,4 +3,4 @@ builder = "nixpacks"
 
 [deploy]
 startCommand = "npm start"
-cronSchedule = "0 * * * *"
+cronSchedule = "55 * * * *"

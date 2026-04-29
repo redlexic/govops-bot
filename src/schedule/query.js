@@ -3,6 +3,30 @@ const { SPELL_CALENDAR } = require("./spell-calendar");
 const { WEEKLY_EVENTS } = require("./atlas-weekly-cycle");
 const { getW0Monday, expandCycle, getActiveCycles } = require("./cycle");
 
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
+// Cron is scheduled `55 * * * *` so notifications arrive 5 minutes before
+// each top-of-hour deadline. cronTick returns the most recent HH:55 ≤ now —
+// the logical fire time of the cron we're inside, independent of Railway's
+// delivery drift.
+function cronTick(now) {
+  const t = new Date(now);
+  if (t.getUTCMinutes() < 55) {
+    t.setUTCHours(t.getUTCHours() - 1);
+  }
+  t.setUTCMinutes(55, 0, 0);
+  return t;
+}
+
+// Returns "24h" | "1h" | "now" | null based on event time relative to cronTick.
+function notificationTier(eventDatetime, now) {
+  const delta = eventDatetime - cronTick(now);
+  if (delta >= 0 && delta < ONE_HOUR_MS) return "now";
+  if (delta >= ONE_HOUR_MS && delta < 2 * ONE_HOUR_MS) return "1h";
+  if (delta >= 24 * ONE_HOUR_MS && delta < 25 * ONE_HOUR_MS) return "24h";
+  return null;
+}
+
 // Find the first event whose datetime is strictly after `now`, in a
 // chronologically-sorted event list. Returns { event, idx, msUntil } or null.
 function findNextAfter(events, now) {
@@ -47,12 +71,15 @@ function nextOccurrenceAfter(tmpl, now) {
 }
 
 function getWeeklyEventsForHour(now) {
-  const nowDay = now.getUTCDay() || 7;
-  const nowHour = now.getUTCHours();
-  const nowDate = todayUTC(now);
-  return WEEKLY_EVENTS
-    .filter((e) => e.day === nowDay && parseInt(e.time, 10) === nowHour)
-    .map((e) => makeWeeklyEvent(e, new Date(`${nowDate}T${e.time}:00Z`)));
+  const tick = cronTick(now);
+  const lookbackPoint = new Date(tick.getTime() - 25 * ONE_HOUR_MS);
+  const due = [];
+  for (const tmpl of WEEKLY_EVENTS) {
+    const datetime = nextOccurrenceAfter(tmpl, lookbackPoint);
+    const tier = notificationTier(datetime, now);
+    if (tier) due.push({ ...makeWeeklyEvent(tmpl, datetime), notificationTier: tier });
+  }
+  return due;
 }
 
 function getNextWeeklyEvent(now) {
@@ -70,15 +97,11 @@ function getNextWeeklyEvent(now) {
 
 function getEventsForHour(now = new Date()) {
   const cycles = getActiveCycles(now);
-  const nowHour = now.getUTCHours();
-  const nowDate = todayUTC(now);
-
   const due = [];
   for (const cycle of cycles) {
     for (const event of cycle.events) {
-      if (todayUTC(event.datetime) === nowDate && event.datetime.getUTCHours() === nowHour) {
-        due.push(event);
-      }
+      const tier = notificationTier(event.datetime, now);
+      if (tier) due.push({ ...event, notificationTier: tier });
     }
   }
   due.push(...getWeeklyEventsForHour(now));
