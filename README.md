@@ -1,54 +1,25 @@
-# redline-bot
+The bot has two runtime modes, deploy this repo twice with different config.  
 
-Slack bot that sends recurring notifications for the **Spell Review** process — the biweekly cycle through which Sky Governance prepares, reviews, deploys, and publishes Executive Vote spells. Also responds to `/redline-schedule` and `/redline-next` slash commands.
+One will do Cron jobs on a schedule and post updates to the slack channel. 
 
-## How it works
-
-The bot has two runtime modes:
+The other will listen for slash commands. 
 
 - **Cron** (`src/index.js`, `npm start`) — a short-lived script triggered hourly by Railway's cron feature (`0 * * * *`). Each run checks whether we are in **Week 1** or **Week 2** of the current cycle, and if the current UTC hour matches any scheduled events, posts them to the configured Slack channel.
 - **Listener** (`src/listener.js`, `npm run listener`) — a long-lived Bolt app in Socket Mode that responds to slash commands (`/redline-schedule`, `/redline-next`) with the current schedule and countdown to the next event.
 
-Events that share the same notification hour are posted in the same run. The bot currently tracks **23 events** across the 2-week cycle.
 
-### Notification schedule
+**Cron** Runs 24h, 1 hr and at the event time (scheduled 5m before to account for delay).  
 
-| Week | Day | Time (UTC) | Events |
-|------|-----|------------|--------|
-| 1 | Tue | 15:00 | Exec Sheet created, Agreement on content and roles |
-| 1 | Wed | 16:00 | Spell cleaned up for external contributions |
-| 1 | Fri | 23:59 | External code contributed via PR, Exec Sheet finalised |
-| 2 | Mon | 16:00 | Spell crafted |
-| 2 | Tue | 12:00 | BA Labs rate changes announced |
-| 2 | Tue | 16:00 | Spell code reviewed (vs Exec Sheet), Exec Doc merged |
-| 2 | Wed | 12:00 | Code review addressed, Exec Hash added |
-| 2 | Wed | 16:00 | Spell code reviewed (vs Exec Doc) |
-| 2 | Thu | 12:00 | Spell deployed, Testnet created |
-| 2 | Thu | 16:00 | Deployment approved, address published/confirmed/received, PR approved/merged |
-| 2 | Thu | 16:30 | Spell retro started |
 
-The full event list — including 32 additional events identified from the diagram and Atlas that do not yet have notification times — is documented in [`CROSS_REFERENCE.md`](CROSS_REFERENCE.md).
+**Listener** prints out something like the below when you type /redline-schedule to the bot, (imagine it with colorful emojis). 
+Shows all event deadlines, 
+shows who is responsible for each, 
+shows the date/time of NOW at the right spot in the schedule, 
+tells how long until the next event.
 
-## Project structure
+Sample /redline-schedule output:
 
-```
-govops-bot/
-├── src/
-│   ├── index.js           # cron entry point — posts events due this hour
-│   ├── listener.js        # Socket Mode Bolt app — handles slash commands
-│   ├── schedule.js        # all 23 events (week, day, time, responsible party)
-│   ├── cycle.js           # derives current cycle week, cycle start, spell date
-│   ├── message.js         # Block Kit formatter for cron notifications
-│   ├── render-schedule.js # Block Kit formatter for /redline-schedule
-│   ├── next-event.js      # finds the next scheduled event + countdown
-│   └── hello.js           # smoke test — auth.test + a hello-world post
-├── references/            # source material used to build the schedule
-├── CROSS_REFERENCE.md     # events cross-referenced across all 3 sources
-├── slack-manifest.json    # Slack app manifest (recreate the app from this)
-├── railway.toml           # Railway deployment config
-├── .env.example
-└── package.json
-```
+![schedule screenshot](/img/sched_shot.png)
 
 ## Setup
 
