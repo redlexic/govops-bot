@@ -50,7 +50,7 @@ function renderSkippedCycleSection(cycle, now) {
     lines.push(formatRow(e));
   }
 
-  return `${header}\n\n${lines.join("\n")}`;
+  return [`${header}\n\n${lines.join("\n")}`];
 }
 
 function renderCycleSection(cycle, now) {
@@ -62,7 +62,8 @@ function renderCycleSection(cycle, now) {
     `*Executive Spell Date: ${spellDate}. Today's Date: ${todayDate} ${formatTimeUTC(now)}*`;
   const nextIdx = cycle.nextIdx;
 
-  const weekGroups = [0, 1, 2, 3].map((w) => {
+  const chunks = [header];
+  for (const w of [0, 1, 2, 3]) {
     const lines = [];
     for (let i = 0; i < cycle.events.length; i++) {
       const e = cycle.events[i];
@@ -71,11 +72,9 @@ function renderCycleSection(cycle, now) {
       if (i === nextIdx) lines.push(formatPointerLine(now, e.datetime));
       lines.push(formatRow(e));
     }
-    if (lines.length === 0) return null;
-    return `_Week ${w}_\n${lines.join("\n")}`;
-  }).filter(Boolean);
-
-  return `${header}\n${weekGroups.join("\n\n")}`;
+    if (lines.length > 0) chunks.push(`_Week ${w}_\n${lines.join("\n")}`);
+  }
+  return chunks;
 }
 
 function renderSchedule(scheduleData) {
@@ -88,10 +87,12 @@ function renderSchedule(scheduleData) {
 
   for (const cycle of cycles) {
     blocks.push({ type: "divider" });
-    const text = cycle.skipped
+    const chunks = cycle.skipped
       ? renderSkippedCycleSection(cycle, now)
       : renderCycleSection(cycle, now);
-    blocks.push({ type: "section", text: { type: "mrkdwn", text } });
+    for (const text of chunks) {
+      blocks.push({ type: "section", text: { type: "mrkdwn", text } });
+    }
   }
 
   if (scheduleData.weekly) {
