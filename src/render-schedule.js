@@ -39,7 +39,7 @@ function renderSkippedCycleSection(cycle, now) {
   const skippedSpellDate = formatLongDate(new Date(`${cycle.publishDate}T00:00:00Z`));
   const nextW0MondayDate = formatLongDate(new Date(`${cycle.nextW0MondayISO}T00:00:00Z`));
   const header =
-    `*5 Week Executive Cycle (Cycle skipped due to ${cycle.skipReason})*\n` +
+    `*4 Week Executive Cycle (Cycle skipped due to ${cycle.skipReason})*\n` +
     `*There will be no executive spell on: ${skippedSpellDate}*\n` +
     `Next new cycle begins ${nextW0MondayDate}.`;
 
@@ -58,7 +58,7 @@ function renderCycleSection(cycle, now) {
   const spellDate = formatLongDate(new Date(`${cycle.publishDate}T00:00:00Z`));
   const todayDate = formatLongDate(now);
   const header =
-    `*5 Week Executive Cycle (${cycle.crafter} coding, ${reviewer} reviewing)*\n` +
+    `*4 Week Executive Cycle (${cycle.crafter} coding, ${reviewer} reviewing)*\n` +
     `*Executive Spell Date: ${spellDate}. Today's Date: ${todayDate} ${formatTimeUTC(now)}*`;
   const nextIdx = cycle.nextIdx;
 

@@ -49,7 +49,7 @@ app.command("/redline-help", async ({ ack, respond }) => {
   await ack();
   const text =
     "*redline-bot commands*\n" +
-    "• `/redline-schedule` — show active 5-week spell cycles with current position\n" +
+    "• `/redline-schedule` — show active 4-week spell cycles with current position\n" +
     "• `/redline-next` — show the next scheduled event and countdown\n" +
     "• `/redline-help` — show this message";
   await respond({
