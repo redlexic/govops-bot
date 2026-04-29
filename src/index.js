@@ -2,6 +2,7 @@ require("dotenv").config();
 const { WebClient } = require("@slack/web-api");
 const { getEventsForHour } = require("./schedule");
 const { buildSlackMessage } = require("./message");
+const { logBroadcast } = require("./broadcast-log");
 
 const slack = new WebClient(process.env.REDLINE_BOT_TOKEN);
 const channel = process.env.SLACK_CHANNEL_ID;
@@ -15,8 +16,11 @@ async function main() {
     return;
   }
 
+  console.log(`[${now.toISOString()}] Broadcasting ${due.length} event(s)`);
   for (const event of due) {
     const msg = buildSlackMessage(event);
+    const mrkdwn = msg.blocks[0].text.text;
+    logBroadcast({ destinations: [`Slack: ${channel}`], mrkdwn });
     await slack.chat.postMessage({ channel, text: msg.text, blocks: msg.blocks });
   }
   console.log(`[${now.toISOString()}] Sent ${due.length} message(s)`);
