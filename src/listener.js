@@ -16,7 +16,7 @@ app.command("/redline-schedule", async ({ ack, respond }) => {
   const now = new Date();
   const scheduleData = getActiveSchedule(now);
   const msg = renderSchedule(scheduleData);
-  await respond({ response_type: "in_channel", text: msg.text, blocks: msg.blocks });
+  await respond({ response_type: "ephemeral", text: msg.text, blocks: msg.blocks });
 });
 
 app.command("/redline-next", async ({ ack, respond }) => {
@@ -25,7 +25,7 @@ app.command("/redline-next", async ({ ack, respond }) => {
   const result = getNextEvent(now);
 
   if (!result) {
-    await respond({ response_type: "in_channel", text: "No upcoming events found." });
+    await respond({ response_type: "ephemeral", text: "No upcoming events found." });
     return;
   }
 
@@ -39,7 +39,7 @@ app.command("/redline-next", async ({ ack, respond }) => {
     `• When: ${slot} (${dateStr} UTC)\n` +
     `• In: *${formatDuration(msUntil)}*${linkSuffix}`;
   await respond({
-    response_type: "in_channel",
+    response_type: "ephemeral",
     text: `Next event: ${event.cycleLabel} — ${event.label} in ${formatDuration(msUntil)}`,
     blocks: [{ type: "section", text: { type: "mrkdwn", text } }],
   });
