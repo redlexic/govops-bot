@@ -21,7 +21,7 @@ function addDaysToISO(isoDate, days) {
 
 function buildCycleLabel(spell) {
   const d = new Date(`${spell.publishDate}T00:00:00Z`);
-  return `${spell.crafter}-${MONTH_ABBR[d.getUTCMonth()]}${d.getUTCDate()}`;
+  return `Executive Spell Cycle (${spell.crafter}, ${MONTH_ABBR[d.getUTCMonth()]} ${d.getUTCDate()})`;
 }
 
 function resolveActor(tmplActor, crafter) {

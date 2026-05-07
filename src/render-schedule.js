@@ -18,7 +18,9 @@ function formatRow(event) {
   const date = formatShortDate(event.datetime);
   const slot = `${DAY_NAMES[event.day]} ${date}, ${event.time}`;
   const linkSuffix = event.link ? `  <${event.link.url}|${event.link.text}>` : "";
-  const wrapupSuffix = event.isWrapup ? ` _(${event.cycleLabel} wrapup)_` : "";
+  const wrapupSuffix = event.isWrapup
+    ? ` _(wrapup of Executive Spell Cycle - ${event.crafter}, ${formatShortDate(new Date(`${event.publishDate}T00:00:00Z`))})_`
+    : "";
   return `   \`${slot}\` ${formatActor(event.actor)}  ${event.label}${linkSuffix}${wrapupSuffix}`;
 }
 

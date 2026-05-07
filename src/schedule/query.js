@@ -18,13 +18,11 @@ function cronTick(now) {
   return t;
 }
 
-// Returns "24h" | "1h" | "now" | null based on event time relative to cronTick.
-function notificationTier(eventDatetime, now) {
+// True when `eventDatetime` falls in the [1h, 2h) window after cronTick —
+// i.e. the cron tick that fires ~1 hour before the event's deadline hour.
+function isOneHourTier(eventDatetime, now) {
   const delta = eventDatetime - cronTick(now);
-  if (delta >= 0 && delta < ONE_HOUR_MS) return "now";
-  if (delta >= ONE_HOUR_MS && delta < 2 * ONE_HOUR_MS) return "1h";
-  if (delta >= 24 * ONE_HOUR_MS && delta < 25 * ONE_HOUR_MS) return "24h";
-  return null;
+  return delta >= ONE_HOUR_MS && delta < 2 * ONE_HOUR_MS;
 }
 
 // Find the first event whose datetime is strictly after `now`, in a
@@ -72,12 +70,11 @@ function nextOccurrenceAfter(tmpl, now) {
 
 function getWeeklyEventsForHour(now) {
   const tick = cronTick(now);
-  const lookbackPoint = new Date(tick.getTime() - 25 * ONE_HOUR_MS);
+  const lookbackPoint = new Date(tick.getTime() - 2 * ONE_HOUR_MS);
   const due = [];
   for (const tmpl of WEEKLY_EVENTS) {
     const datetime = nextOccurrenceAfter(tmpl, lookbackPoint);
-    const tier = notificationTier(datetime, now);
-    if (tier) due.push({ ...makeWeeklyEvent(tmpl, datetime), notificationTier: tier });
+    if (isOneHourTier(datetime, now)) due.push(makeWeeklyEvent(tmpl, datetime));
   }
   return due;
 }
@@ -100,8 +97,7 @@ function getEventsForHour(now = new Date()) {
   const due = [];
   for (const cycle of cycles) {
     for (const event of cycle.events) {
-      const tier = notificationTier(event.datetime, now);
-      if (tier) due.push({ ...event, notificationTier: tier });
+      if (isOneHourTier(event.datetime, now)) due.push(event);
     }
   }
   due.push(...getWeeklyEventsForHour(now));

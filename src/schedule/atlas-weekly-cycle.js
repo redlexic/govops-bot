@@ -9,12 +9,12 @@
 // week's proposal, while Tue–Fri concern the current week's cycle.
 
 const WEEKLY_EVENTS = [
-  { day: 1, time: "16:00", label: "CF publishes Governance Polls (vote on previous week's Atlas Edit proposal opens)", actor: "CF" },
-  { day: 2, time: "17:00", label: "Early heads-up: flag expected edits for this week's cycle", actor: "OF" },
-  { day: 3, time: "20:00", label: "Feedback request deadline (OF → AA, if review needed before submission)", actor: "OF" },
-  { day: 4, time: "16:00", label: "Governance Polls close (vote on previous week's proposal concludes, 3-day vote)", actor: "Delegates" },
-  { day: 4, time: "20:00", label: "Edit submission deadline (complete, reviewed, SH signed-off)", actor: "OF" },
-  { day: 5, time: "08:00", label: "AA publishes Atlas Edit Weekly Cycle Proposal to Forum", actor: "AA" },
+  { day: 1, time: "16:00", label: "CF publishes Governance Polls", actor: "CF" },
+  { day: 2, time: "17:00", label: "Heads up to AA on edits", actor: "OF" },
+  { day: 3, time: "20:00", label: "Feedback request deadline (OF → AA)", actor: "OF" },
+  { day: 4, time: "16:00", label: "Governance Polls close", actor: "Delegates" },
+  { day: 4, time: "20:00", label: "Edit submission deadline", actor: "OF" },
+  { day: 5, time: "08:00", label: "AA publishes Proposal to Forum", actor: "AA" },
 ];
 
 module.exports = { WEEKLY_EVENTS };
