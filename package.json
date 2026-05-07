@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "listener": "node src/listener.js",
-    "hello": "node src/hello.js"
+    "hello": "node src/hello.js",
+    "patch-notes": "node src/patch-notes.js"
   },
   "dependencies": {
     "@slack/bolt": "^3.22.0",

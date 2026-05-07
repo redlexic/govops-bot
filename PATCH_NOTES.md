@@ -1,0 +1,4 @@
+- Only 1 reminder per event at 1 hour before event.
+- Simplified notification title: *⏰ In 1 hour — &lt;Event&gt;*, with cycle, week, and deadline on the next line
+- Shortened many notifications for better formatting
+- Changed cycle titles to be easier to understand 
